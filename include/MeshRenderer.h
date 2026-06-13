@@ -30,7 +30,7 @@ namespace MeshRenderer {
 
         template <class T>
         T GetFunction(LPCSTR name) {
-            static auto meshRenderer = GetModuleHandle(L"MeshRenderer");
+            static auto meshRenderer = GetModuleHandle(L"MeshRenderingFramework");
             if (!meshRenderer) {
                 return nullptr;
             }
