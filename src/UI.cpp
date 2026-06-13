@@ -1,5 +1,5 @@
 ﻿#include "UI.h"
-#include "MeshRenderer.h"
+#include "MeshRenderingFrameworkAPI.h.h"
 
 void UI::Register() {
     if (!SKSEMenuFramework::IsInstalled()) {
@@ -10,14 +10,14 @@ void UI::Register() {
 }
 
 class MenuItem {
-    MeshRenderer::OrbitMesh* mesh = nullptr;
+    MeshRenderingFrameworkAPI::OrbitMesh* mesh = nullptr;
 public:
     ~MenuItem() {
         if (mesh) {
             delete mesh;
         }
     }
-    MenuItem(MeshRenderer::OrbitMesh* mesh, bool alwaysUpdate = false) : mesh(mesh) {
+    MenuItem(MeshRenderingFrameworkAPI::OrbitMesh* mesh, bool alwaysUpdate = false) : mesh(mesh) {
         if (mesh) {
             mesh->SetAlwaysUpdate(alwaysUpdate);
         }
@@ -44,10 +44,10 @@ void __stdcall UI::Main::Render() {
     #define TREE 0x1306D
     #define DWE_SPIDER 0x10EC86
     #define FLAMES_SPELL 0x12FCD
-    static auto item1 = new MenuItem(new MeshRenderer::OrbitMesh(GOLD_INGOT, 1024, 1024));
-    static auto item2 = new MenuItem(new MeshRenderer::OrbitMesh(TREE, 1024, 1024));
-    static auto item3 = new MenuItem(new MeshRenderer::OrbitMesh(DWE_SPIDER, 1024, 1024));
-    static auto item4 = new MenuItem(new MeshRenderer::OrbitMesh(FLAMES_SPELL, 1024, 1024), true);
+    static auto item1 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
+    static auto item2 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
+    static auto item3 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(DWE_SPIDER, 1024, 1024));
+    static auto item4 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(FLAMES_SPELL, 1024, 1024), true);
     item1->Render("1");
     item2->Render("2");
     item3->Render("3");
