@@ -47,11 +47,20 @@ void __stdcall UI::Main::Render() {
     #define FROSTBITE_SPELL 0x2B96B
     #define HEALING_SPELL 0x12FCC
     #define LYDIA 0xA2C8E
-    static auto lydiaHead = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(LYDIA, 1024, 1024));
-    static auto goldIngot = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
-    static auto tree = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
-    static auto dwarvenSpider = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(DWE_SPIDER, 1024, 1024));
+    static MenuItem* lydiaHead = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(LYDIA, 1024, 1024));
+    static MenuItem* lydiaWholeNpc =
+        new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024));
+    static MenuItem* lydiaWholeNpcWithoutArmour =
+        new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024, false));
+    static MenuItem* goldIngot = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
+    static MenuItem* tree = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
+    static MenuItem* dwarvenSpider = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(DWE_SPIDER, 1024, 1024));
+    ImGuiMCP::Text("Lydia - head");
     lydiaHead->Render("3");
+    ImGuiMCP::Text("Lydia - whole NPC");
+    lydiaWholeNpc->Render("7");
+    ImGuiMCP::Text("Lydia - whole NPC without armour");
+    lydiaWholeNpcWithoutArmour->Render("8");
     goldIngot->Render("4");
     tree->Render("5");
     dwarvenSpider->Render("6");
