@@ -6,4 +6,7 @@ namespace UI {
     namespace Main {
         void __stdcall Render();
     }
+    namespace Debug {
+        void __stdcall Render();
+    }
 };

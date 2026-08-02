@@ -7,6 +7,7 @@ void UI::Register() {
     }
     SKSEMenuFramework::SetSection(MOD_NAME);
     SKSEMenuFramework::AddSectionItem("Main", Main::Render);
+    SKSEMenuFramework::AddSectionItem("Debug", Main::Render);
 }
 
 class MenuItem {
@@ -43,26 +44,24 @@ public:
     }
 };
 
-
+#define GOLD_INGOT 0x12E49
+#define TREE 0x1306D
+#define DWE_SPIDER 0x10EC86
+#define FLAMES_SPELL 0x12FCD
+#define FROSTBITE_SPELL 0x2B96B
+#define HEALING_SPELL 0x12FCC
+#define LYDIA 0xA2C8E
 
 void __stdcall UI::Main::Render() {
-    #define GOLD_INGOT 0x12E49
-    #define TREE 0x1306D
-    #define DWE_SPIDER 0x10EC86
-    #define FLAMES_SPELL 0x12FCD
-    #define FROSTBITE_SPELL 0x2B96B
-    #define HEALING_SPELL 0x12FCC
-    #define LYDIA 0xA2C8E
+
     static MenuItem* lydiaHead = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(LYDIA, 1024, 1024));
-    static MenuItem* lydiaWholeNpc =
-        new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024));
+
     static MenuItem* lydiaWholeNpcAnimated =
         new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024));
     static const bool lydiaAnimationLoaded = lydiaWholeNpcAnimated->PlayAnimation(
         "meshes\\actors\\character\\animations\\mt_idle_a_arms_crossedloop.hkx",
         true);
-    static MenuItem* lydiaWholeNpcWithoutArmour =
-        new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024, false));
+
     static MenuItem* goldIngot = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
     static MenuItem* tree = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
     static MenuItem* dwarvenSpider = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(DWE_SPIDER, 1024, 1024));
@@ -72,15 +71,13 @@ void __stdcall UI::Main::Render() {
         "meshes\\actors\\dwarvenspider\\character assets\\skeleton.hkx");
     ImGuiMCP::Text("Lydia - head");
     lydiaHead->Render("3");
-    ImGuiMCP::Text("Lydia - whole NPC");
-    lydiaWholeNpc->Render("7");
+
     ImGuiMCP::Text(
         lydiaAnimationLoaded
             ? "Lydia - game animation: mt_idle_a_arms_crossedloop.hkx"
             : "Lydia - failed to load game animation");
     lydiaWholeNpcAnimated->Render("9");
-    ImGuiMCP::Text("Lydia - whole NPC without armour");
-    lydiaWholeNpcWithoutArmour->Render("8");
+
     goldIngot->Render("4");
     tree->Render("5");
     ImGuiMCP::Text(
@@ -88,4 +85,15 @@ void __stdcall UI::Main::Render() {
             ? "Dwarven Spider - game animation: mainidle.hkx"
             : "Dwarven Spider - failed to load game animation");
     dwarvenSpider->Render("6");
+}
+
+void __stdcall UI::Debug::Render() {
+    static MenuItem* lydiaWholeNpc =
+        new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024));
+        static MenuItem* lydiaWholeNpcWithoutArmour =
+        new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024, false));
+    ImGuiMCP::Text("Lydia - whole NPC without armour");
+    lydiaWholeNpcWithoutArmour->Render("8");
+    ImGuiMCP::Text("Lydia - whole NPC");
+    lydiaWholeNpc->Render("7");
 }
