@@ -7,7 +7,7 @@ void UI::Register() {
     }
     SKSEMenuFramework::SetSection(MOD_NAME);
     SKSEMenuFramework::AddSectionItem("Main", Main::Render);
-    SKSEMenuFramework::AddSectionItem("Debug", Main::Render);
+    SKSEMenuFramework::AddSectionItem("Debug", Debug::Render);
 }
 
 class MenuItem {
@@ -28,6 +28,9 @@ public:
         bool loop = true,
         const char* skeletonPath = "meshes\\actors\\character\\character assets\\skeleton.hkx") {
         return mesh && mesh->PlayAnimation(gameAnimationPath, loop, skeletonPath);
+    }
+    bool SetExpression(RE::BSFaceGenKeyframeMultiple::Expression expression) {
+        return mesh && mesh->SetExpression(expression);
     }
     void Render(const char* name) {
         if (ImGuiMCP::Button((std::string("Save##Save") + name).c_str())) {
@@ -53,14 +56,17 @@ public:
 #define LYDIA 0xA2C8E
 
 void __stdcall UI::Main::Render() {
-
     static MenuItem* lydiaHead = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(LYDIA, 1024, 1024));
+    static const bool lydiaHeadAnimationLoaded = lydiaHead->PlayAnimation(
+        "meshes\\actors\\character\\animations\\dialogueangryhips.hkx",
+        true);
 
     static MenuItem* lydiaWholeNpcAnimated =
         new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024));
     static const bool lydiaAnimationLoaded = lydiaWholeNpcAnimated->PlayAnimation(
         "meshes\\actors\\character\\animations\\mt_idle_a_arms_crossedloop.hkx",
         true);
+    static bool lydiaExpressionApplied = true;
 
     static MenuItem* goldIngot = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
     static MenuItem* tree = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
@@ -69,13 +75,43 @@ void __stdcall UI::Main::Render() {
         "meshes\\actors\\dwarvenspider\\animations\\mainidle.hkx",
         true,
         "meshes\\actors\\dwarvenspider\\character assets\\skeleton.hkx");
-    ImGuiMCP::Text("Lydia - head");
+    ImGuiMCP::Text(
+        lydiaHeadAnimationLoaded
+            ? "Lydia - skeletal head motion with direct TRI expressions"
+            : "Lydia - failed to animate head");
     lydiaHead->Render("3");
 
     ImGuiMCP::Text(
         lydiaAnimationLoaded
-            ? "Lydia - game animation: mt_idle_a_arms_crossedloop.hkx"
-            : "Lydia - failed to load game animation");
+            ? "Lydia - skeletal animation with direct TRI expressions"
+            : "Lydia - failed to load animation");
+    ImGuiMCP::Text("HKX animates the skeleton. Expression TRI test:");
+    if (ImGuiMCP::Button("Happy##LydiaExpression")) {
+        const bool headApplied = lydiaHead->SetExpression(
+            RE::BSFaceGenKeyframeMultiple::Expression::DialogueHappy);
+        const bool wholeNpcApplied = lydiaWholeNpcAnimated->SetExpression(
+            RE::BSFaceGenKeyframeMultiple::Expression::DialogueHappy);
+        lydiaExpressionApplied = headApplied && wholeNpcApplied;
+    }
+    ImGuiMCP::SameLine();
+    if (ImGuiMCP::Button("Angry##LydiaExpression")) {
+        const bool headApplied = lydiaHead->SetExpression(
+            RE::BSFaceGenKeyframeMultiple::Expression::DialogueAnger);
+        const bool wholeNpcApplied = lydiaWholeNpcAnimated->SetExpression(
+            RE::BSFaceGenKeyframeMultiple::Expression::DialogueAnger);
+        lydiaExpressionApplied = headApplied && wholeNpcApplied;
+    }
+    ImGuiMCP::SameLine();
+    if (ImGuiMCP::Button("Neutral##LydiaExpression")) {
+        const bool headApplied = lydiaHead->SetExpression(
+            RE::BSFaceGenKeyframeMultiple::Expression::MoodNeutral);
+        const bool wholeNpcApplied = lydiaWholeNpcAnimated->SetExpression(
+            RE::BSFaceGenKeyframeMultiple::Expression::MoodNeutral);
+        lydiaExpressionApplied = headApplied && wholeNpcApplied;
+    }
+    if (!lydiaExpressionApplied) {
+        ImGuiMCP::Text("Failed to load or match Lydia's expression TRI morph.");
+    }
     lydiaWholeNpcAnimated->Render("9");
 
     goldIngot->Render("4");
