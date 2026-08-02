@@ -22,8 +22,11 @@ public:
             mesh->SetAlwaysUpdate(alwaysUpdate);
         }
     }
-    bool PlayAnimation(const char* gameAnimationPath, bool loop = true) {
-        return mesh && mesh->PlayAnimation(gameAnimationPath, loop);
+    bool PlayAnimation(
+        const char* gameAnimationPath,
+        bool loop = true,
+        const char* skeletonPath = "meshes\\actors\\character\\character assets\\skeleton.hkx") {
+        return mesh && mesh->PlayAnimation(gameAnimationPath, loop, skeletonPath);
     }
     void Render(const char* name) {
         if (ImGuiMCP::Button((std::string("Save##Save") + name).c_str())) {
@@ -63,6 +66,10 @@ void __stdcall UI::Main::Render() {
     static MenuItem* goldIngot = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
     static MenuItem* tree = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
     static MenuItem* dwarvenSpider = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(DWE_SPIDER, 1024, 1024));
+    static const bool dwarvenSpiderAnimationLoaded = dwarvenSpider->PlayAnimation(
+        "meshes\\actors\\dwarvenspider\\animations\\mainidle.hkx",
+        true,
+        "meshes\\actors\\dwarvenspider\\character assets\\skeleton.hkx");
     ImGuiMCP::Text("Lydia - head");
     lydiaHead->Render("3");
     ImGuiMCP::Text("Lydia - whole NPC");
@@ -76,5 +83,9 @@ void __stdcall UI::Main::Render() {
     lydiaWholeNpcWithoutArmour->Render("8");
     goldIngot->Render("4");
     tree->Render("5");
+    ImGuiMCP::Text(
+        dwarvenSpiderAnimationLoaded
+            ? "Dwarven Spider - game animation: mainidle.hkx"
+            : "Dwarven Spider - failed to load game animation");
     dwarvenSpider->Render("6");
 }
