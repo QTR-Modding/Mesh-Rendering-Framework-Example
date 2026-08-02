@@ -56,6 +56,35 @@ public:
 #define LYDIA 0xA2C8E
 
 void __stdcall UI::Main::Render() {
+    static MenuItem* playerCharacter = nullptr;
+    static RE::NiAVObject* capturedPlayer3D = nullptr;
+    static bool playerAnimationLoaded = false;
+
+    RE::PlayerCharacter* player = RE::PlayerCharacter::GetSingleton();
+    RE::NiAVObject* currentPlayer3D = player ? player->Get3D(false) : nullptr;
+    const bool refreshPlayer = ImGuiMCP::Button("Refresh player character");
+    if (currentPlayer3D &&
+        (refreshPlayer || !playerCharacter || currentPlayer3D != capturedPlayer3D)) {
+        delete playerCharacter;
+        playerCharacter = new MenuItem(
+            new MeshRenderingFrameworkAPI::OrbitMesh(player, 1024, 1024),
+            true);
+        playerAnimationLoaded = playerCharacter->PlayAnimation(
+            "meshes\\actors\\character\\animations\\mt_idle_a_arms_crossedloop.hkx",
+            true);
+        capturedPlayer3D = currentPlayer3D;
+    }
+
+    ImGuiMCP::Text(
+        playerAnimationLoaded
+            ? "Player character - animated idle with current appearance and equipped armor"
+            : "Player character - current appearance and equipped armor (animation unavailable)");
+    if (playerCharacter) {
+        playerCharacter->Render("PlayerCharacter");
+    } else {
+        ImGuiMCP::Text("Player character 3D is not loaded yet.");
+    }
+
     static MenuItem* lydiaHead = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(LYDIA, 1024, 1024));
     static const bool lydiaHeadAnimationLoaded = lydiaHead->PlayAnimation(
         "meshes\\actors\\character\\animations\\dialogueangryhips.hkx",

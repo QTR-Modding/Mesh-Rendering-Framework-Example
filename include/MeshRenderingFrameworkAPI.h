@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstdio>
 #include <string>
@@ -133,6 +134,24 @@ namespace MeshRenderingFrameworkAPI {
             return function && function(mesh);
         }
 
+        inline bool __stdcall IMesh_SetTextureSet(
+            IMesh* mesh,
+            const char* nifPath,
+            const char* const* texturePaths,
+            std::uint32_t texturePathCount,
+            bool modelSpaceNormals,
+            bool includeBodyShape)
+        {
+            auto function = GetFunction<decltype(&IMesh_SetTextureSet)>("IMesh_SetTextureSet");
+            return function && function(
+                mesh,
+                nifPath,
+                texturePaths,
+                texturePathCount,
+                modelSpaceNormals,
+                includeBodyShape);
+        }
+
         inline void __stdcall IMesh_Delete(IMesh* mesh) {
             auto function = GetFunction<decltype(&IMesh_Delete)>("IMesh_Delete");
             if (!function) {
@@ -210,13 +229,84 @@ namespace MeshRenderingFrameworkAPI {
             }
         }
 
+        inline constexpr std::size_t NpcTexturePathCount =
+            static_cast<std::size_t>(RE::BSTextureSet::Textures::kUsedTotal);
+
+        struct NpcTextureOverride {
+            std::string nifPath;
+            std::array<std::string, NpcTexturePathCount> texturePaths;
+            bool modelSpaceNormals = false;
+            bool includeBodyShape = false;
+        };
+
+        inline void AppendNpcTextureOverride(
+            std::vector<NpcTextureOverride>* overrides,
+            const char* nifPath,
+            RE::BGSTextureSet* textureSet,
+            bool includeBodyShape)
+        {
+            if (!overrides || !nifPath || !nifPath[0] || !textureSet) {
+                return;
+            }
+
+            NpcTextureOverride textureOverride;
+            textureOverride.nifPath = nifPath;
+            textureOverride.modelSpaceNormals = textureSet->flags.any(
+                RE::BGSTextureSet::Flag::kHasModelSpaceNormalMap);
+            textureOverride.includeBodyShape = includeBodyShape;
+            for (std::size_t textureIndex = 0;
+                 textureIndex < NpcTexturePathCount;
+                 ++textureIndex) {
+                const char* texturePath = textureSet->GetTexturePath(
+                    static_cast<RE::BSTextureSet::Texture>(textureIndex));
+                if (texturePath) {
+                    textureOverride.texturePaths[textureIndex] = texturePath;
+                }
+            }
+            overrides->push_back(std::move(textureOverride));
+        }
+
+        inline RE::BGSTextureSet* GetNpcHeadTextureSet(
+            RE::TESNPC* npc,
+            RE::TESRace* race,
+            RE::SEX sex,
+            RE::BGSHeadPart* headPart)
+        {
+            if (!headPart) {
+                return nullptr;
+            }
+
+            if (headPart->type != RE::BGSHeadPart::HeadPartType::kFace) {
+                return headPart->textureSet;
+            }
+
+            RE::TESNPC* faceNpc = npc ? npc->GetRootFaceNPC() : nullptr;
+            if (!faceNpc) {
+                faceNpc = npc;
+            }
+            if (faceNpc &&
+                faceNpc->GetRace() == race &&
+                faceNpc->headRelatedData &&
+                faceNpc->headRelatedData->faceDetails) {
+                return faceNpc->headRelatedData->faceDetails;
+            }
+
+            RE::TESRace::FaceRelatedData* faceData = race ? race->faceRelatedData[sex] : nullptr;
+            if (faceData && faceData->defaultFaceDetailsTextureSet) {
+                return faceData->defaultFaceDetailsTextureSet;
+            }
+            return headPart->textureSet;
+        }
+
         inline std::uint32_t AppendArmorModelPaths(
             RE::TESObjectARMO* armor,
             RE::TESRace* race,
             RE::SEX sex,
             std::vector<std::string>& paths,
             std::uint32_t excludedSlots = 0,
-            bool excludeOnAnyOverlap = false)
+            bool excludeOnAnyOverlap = false,
+            std::vector<NpcTextureOverride>* textureOverrides = nullptr,
+            bool textureSetIncludesBodyShape = false)
         {
             if (!armor || !race) {
                 return 0;
@@ -238,6 +328,11 @@ namespace MeshRenderingFrameworkAPI {
                 const char* modelPath = armorAddon->bipedModels[sex].GetModel();
                 if (modelPath && modelPath[0]) {
                     AppendUniqueNifPath(paths, modelPath);
+                    AppendNpcTextureOverride(
+                        textureOverrides,
+                        modelPath,
+                        armorAddon->skinTextures[sex],
+                        textureSetIncludesBodyShape);
                     addedSlots |= addonSlots;
                 }
             }
@@ -279,43 +374,100 @@ namespace MeshRenderingFrameworkAPI {
             RE::TESNPC* npc,
             uint32_t width,
             uint32_t height,
-            bool includeDefaultOutfit = true)
+            bool includeDefaultOutfit = true,
+            RE::Actor* actor = nullptr)
         {
             if (!npc) {
                 return nullptr;
             }
 
-            RE::TESRace* race = npc->GetRace();
+            RE::TESRace* race = actor ? actor->GetRace() : npc->GetRace();
             if (!race) {
                 return nullptr;
             }
             const RE::SEX sex = npc->GetSex();
             std::vector<std::string> componentPaths;
+            std::vector<NpcTextureOverride> textureOverrides;
 
             std::uint32_t outfitSlots = 0;
-            if (includeDefaultOutfit && npc->defaultOutfit) {
+            if (actor) {
+                std::vector<RE::TESObjectARMO*> wornArmors;
+                wornArmors.reserve(8);
+                for (std::uint32_t slotIndex = 0; slotIndex < 32; ++slotIndex) {
+                    const auto slot = static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(
+                        std::uint32_t{1} << slotIndex);
+                    RE::TESObjectARMO* armor = actor->GetWornArmor(slot);
+                    if (!armor ||
+                        std::find(wornArmors.begin(), wornArmors.end(), armor) != wornArmors.end()) {
+                        continue;
+                    }
+
+                    wornArmors.push_back(armor);
+                    outfitSlots |= AppendArmorModelPaths(
+                        armor,
+                        race,
+                        sex,
+                        componentPaths,
+                        0,
+                        false,
+                        &textureOverrides);
+                }
+            } else if (includeDefaultOutfit && npc->defaultOutfit) {
                 for (RE::TESForm* outfitItem : npc->defaultOutfit->outfitItems) {
                     RE::TESObjectARMO* armor = outfitItem ? outfitItem->As<RE::TESObjectARMO>() : nullptr;
-                    outfitSlots |= AppendArmorModelPaths(armor, race, sex, componentPaths);
+                    outfitSlots |= AppendArmorModelPaths(
+                        armor,
+                        race,
+                        sex,
+                        componentPaths,
+                        0,
+                        false,
+                        &textureOverrides);
                 }
             }
 
             const std::size_t pathCountBeforeSkin = componentPaths.size();
-            AppendArmorModelPaths(npc->skin, race, sex, componentPaths, outfitSlots, true);
+            AppendArmorModelPaths(
+                npc->skin,
+                race,
+                sex,
+                componentPaths,
+                outfitSlots,
+                true,
+                &textureOverrides,
+                true);
             if (componentPaths.size() == pathCountBeforeSkin) {
-                AppendArmorModelPaths(race->skin, race, sex, componentPaths, outfitSlots, true);
+                AppendArmorModelPaths(
+                    race->skin,
+                    race,
+                    sex,
+                    componentPaths,
+                    outfitSlots,
+                    true,
+                    &textureOverrides,
+                    true);
             }
             if (componentPaths.size() == pathCountBeforeSkin) {
-                AppendArmorModelPaths(npc->farSkin, race, sex, componentPaths, outfitSlots, true);
+                AppendArmorModelPaths(
+                    npc->farSkin,
+                    race,
+                    sex,
+                    componentPaths,
+                    outfitSlots,
+                    true,
+                    &textureOverrides,
+                    true);
             }
 
             bool addedFaceGen = false;
-            const std::vector<std::string> faceGenPaths = GetNpcFaceGenPaths(npc);
-            for (const std::string& faceGenPath : faceGenPaths) {
-                if (NifResourceExists(faceGenPath)) {
-                    AppendUniqueNifPath(componentPaths, faceGenPath.c_str());
-                    addedFaceGen = true;
-                    break;
+            if (!actor) {
+                const std::vector<std::string> faceGenPaths = GetNpcFaceGenPaths(npc);
+                for (const std::string& faceGenPath : faceGenPaths) {
+                    if (NifResourceExists(faceGenPath)) {
+                        AppendUniqueNifPath(componentPaths, faceGenPath.c_str());
+                        addedFaceGen = true;
+                        break;
+                    }
                 }
             }
 
@@ -323,7 +475,13 @@ namespace MeshRenderingFrameworkAPI {
                 for (std::int8_t headPartIndex = 0; headPartIndex < npc->numHeadParts; ++headPartIndex) {
                     RE::BGSHeadPart* headPart = npc->headParts[headPartIndex];
                     if (headPart) {
-                        AppendUniqueNifPath(componentPaths, headPart->GetModel());
+                        const char* headPartPath = headPart->GetModel();
+                        AppendUniqueNifPath(componentPaths, headPartPath);
+                        AppendNpcTextureOverride(
+                            &textureOverrides,
+                            headPartPath,
+                            GetNpcHeadTextureSet(npc, race, sex, headPart),
+                            false);
                     }
                 }
             }
@@ -350,6 +508,23 @@ namespace MeshRenderingFrameworkAPI {
                 return nullptr;
             }
 
+            for (const NpcTextureOverride& textureOverride : textureOverrides) {
+                std::array<const char*, NpcTexturePathCount> texturePaths{};
+                for (std::size_t textureIndex = 0;
+                     textureIndex < texturePaths.size();
+                     ++textureIndex) {
+                    texturePaths[textureIndex] =
+                        textureOverride.texturePaths[textureIndex].c_str();
+                }
+                IMesh_SetTextureSet(
+                    mesh,
+                    textureOverride.nifPath.c_str(),
+                    texturePaths.data(),
+                    static_cast<std::uint32_t>(texturePaths.size()),
+                    textureOverride.modelSpaceNormals,
+                    textureOverride.includeBodyShape);
+            }
+
             RE::TESNPC* tintNpc = npc;
             if (tintNpc->bodyTintColor.red == 0 &&
                 tintNpc->bodyTintColor.green == 0 &&
@@ -369,7 +544,11 @@ namespace MeshRenderingFrameworkAPI {
                 mesh->useBodyTint = true;
                 mesh->mustUpdate = true;
             }
-            AttachNpcFaceMorphSource(mesh, npc);
+            if (actor) {
+                IMesh_SetFaceMorphSource(mesh, actor);
+            } else {
+                AttachNpcFaceMorphSource(mesh, npc);
+            }
             return mesh;
         }
 
@@ -490,6 +669,18 @@ namespace MeshRenderingFrameworkAPI {
             }
 
             return IMesh_CreateByNiAVObjectList(objects, objectCount, width, height);
+        }
+
+        inline IMesh* CreateFromActor(
+            RE::Actor* actor,
+            uint32_t width,
+            uint32_t height)
+        {
+            if (!actor) {
+                return nullptr;
+            }
+
+            return CreateWholeNpc(actor->GetActorBase(), width, height, false, actor);
         }
 
     }
@@ -726,6 +917,10 @@ namespace MeshRenderingFrameworkAPI {
             base = nullptr;
             mesh = Internal::CreateFromNiAVObjectList(objects.data(), static_cast<uint32_t>(objects.size()), width, height);
         }
+        Mesh(RE::Actor* actor, uint32_t width, uint32_t height) {
+            base = actor ? actor->GetActorBase() : nullptr;
+            mesh = Internal::CreateFromActor(actor, width, height);
+        }
 
     protected:
         Mesh(Internal::IMesh* createdMesh, RE::TESBoundObject* sourceBase)
@@ -792,6 +987,9 @@ namespace MeshRenderingFrameworkAPI {
 
         OrbitMesh(const std::vector<RE::NiAVObject*>& objects, uint32_t width, uint32_t height)
             : Mesh(objects, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+
+        OrbitMesh(RE::Actor* actor, uint32_t width, uint32_t height)
+            : Mesh(actor, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
         void Render(const char* name) {
             const ImGuiMCP::ImVec2 imageSize{
