@@ -22,6 +22,9 @@ public:
             mesh->SetAlwaysUpdate(alwaysUpdate);
         }
     }
+    bool PlayAnimation(const char* gameAnimationPath, bool loop = true) {
+        return mesh && mesh->PlayAnimation(gameAnimationPath, loop);
+    }
     void Render(const char* name) {
         if (ImGuiMCP::Button((std::string("Save##Save") + name).c_str())) {
             const auto path = std::format(".\\Data\\{}.png", name);
@@ -50,6 +53,11 @@ void __stdcall UI::Main::Render() {
     static MenuItem* lydiaHead = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(LYDIA, 1024, 1024));
     static MenuItem* lydiaWholeNpc =
         new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024));
+    static MenuItem* lydiaWholeNpcAnimated =
+        new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024));
+    static const bool lydiaAnimationLoaded = lydiaWholeNpcAnimated->PlayAnimation(
+        "meshes\\actors\\character\\animations\\mt_idle_a_arms_crossedloop.hkx",
+        true);
     static MenuItem* lydiaWholeNpcWithoutArmour =
         new MenuItem(new MeshRenderingFrameworkAPI::WholeNpcOrbitMesh(LYDIA, 1024, 1024, false));
     static MenuItem* goldIngot = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
@@ -59,6 +67,11 @@ void __stdcall UI::Main::Render() {
     lydiaHead->Render("3");
     ImGuiMCP::Text("Lydia - whole NPC");
     lydiaWholeNpc->Render("7");
+    ImGuiMCP::Text(
+        lydiaAnimationLoaded
+            ? "Lydia - game animation: mt_idle_a_arms_crossedloop.hkx"
+            : "Lydia - failed to load game animation");
+    lydiaWholeNpcAnimated->Render("9");
     ImGuiMCP::Text("Lydia - whole NPC without armour");
     lydiaWholeNpcWithoutArmour->Render("8");
     goldIngot->Render("4");
