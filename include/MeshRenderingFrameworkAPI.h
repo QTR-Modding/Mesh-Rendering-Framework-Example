@@ -62,25 +62,12 @@ namespace MeshRenderingFrameworkAPI {
             return function(nifPath, width, height);
         }
 
-        inline IMesh* __stdcall IMesh_CreateByNifPathSet(
-            const char* const* basePaths,
-            uint32_t basePathCount,
-            const char* const* attachmentPaths,
-            uint32_t attachmentPathCount,
-            uint32_t width,
-            uint32_t height)
-        {
+        inline IMesh* __stdcall IMesh_CreateByNifPathSet(const char* const* basePaths, uint32_t basePathCount, const char* const* attachmentPaths, uint32_t attachmentPathCount, uint32_t width, uint32_t height) {
             auto function = GetFunction<decltype(&IMesh_CreateByNifPathSet)>("IMesh_CreateByNifPathSet");
             if (!function) {
                 return nullptr;
             }
-            return function(
-                basePaths,
-                basePathCount,
-                attachmentPaths,
-                attachmentPathCount,
-                width,
-                height);
+            return function(basePaths, basePathCount, attachmentPaths, attachmentPathCount, width, height);
         }
 
         inline IMesh* __stdcall IMesh_CreateByNiAVObjectList(RE::NiAVObject* const* objects, uint32_t objectCount, uint32_t width, uint32_t height) {
@@ -91,65 +78,34 @@ namespace MeshRenderingFrameworkAPI {
             return function(objects, objectCount, width, height);
         }
 
-        inline bool __stdcall IMesh_SetBoneLocalPose(
-            IMesh* mesh,
-            const char* const* boneNames,
-            const std::int16_t* parentIndices,
-            const BoneTransform* transforms,
-            uint32_t transformCount)
-        {
+        inline bool __stdcall IMesh_SetBoneLocalPose(IMesh* mesh, const char* const* boneNames, const std::int16_t* parentIndices, const BoneTransform* transforms, uint32_t transformCount) {
             auto function = GetFunction<decltype(&IMesh_SetBoneLocalPose)>("IMesh_SetBoneLocalPose");
             return function && function(mesh, boneNames, parentIndices, transforms, transformCount);
         }
 
-        inline bool __stdcall IMesh_PlayAnimation(
-            IMesh* mesh,
-            const char* animationPath,
-            const char* skeletonPath,
-            bool loop)
-        {
+        inline bool __stdcall IMesh_PlayAnimation(IMesh* mesh, const char* animationPath, const char* skeletonPath, bool loop) {
             auto function = GetFunction<decltype(&IMesh_PlayAnimation)>("IMesh_PlayAnimation");
             return function && function(mesh, animationPath, skeletonPath, loop);
         }
 
-        inline bool __stdcall IMesh_SetFaceMorphSource(IMesh* mesh, RE::Actor* actor)
-        {
+        inline bool __stdcall IMesh_SetFaceMorphSource(IMesh* mesh, RE::Actor* actor) {
             auto function = GetFunction<decltype(&IMesh_SetFaceMorphSource)>("IMesh_SetFaceMorphSource");
             return function && function(mesh, actor);
         }
 
-        inline bool __stdcall IMesh_SetMorph(
-            IMesh* mesh,
-            const char* triPath,
-            const char* morphName,
-            float value)
-        {
+        inline bool __stdcall IMesh_SetMorph(IMesh* mesh, const char* triPath, const char* morphName, float value) {
             auto function = GetFunction<decltype(&IMesh_SetMorph)>("IMesh_SetMorph");
             return function && function(mesh, triPath, morphName, value);
         }
 
-        inline bool __stdcall IMesh_ClearFaceMorphs(IMesh* mesh)
-        {
+        inline bool __stdcall IMesh_ClearFaceMorphs(IMesh* mesh) {
             auto function = GetFunction<decltype(&IMesh_ClearFaceMorphs)>("IMesh_ClearFaceMorphs");
             return function && function(mesh);
         }
 
-        inline bool __stdcall IMesh_SetTextureSet(
-            IMesh* mesh,
-            const char* nifPath,
-            const char* const* texturePaths,
-            std::uint32_t texturePathCount,
-            bool modelSpaceNormals,
-            bool includeBodyShape)
-        {
+        inline bool __stdcall IMesh_SetTextureSet(IMesh* mesh, const char* nifPath, const char* const* texturePaths, std::uint32_t texturePathCount, bool modelSpaceNormals, bool includeBodyShape) {
             auto function = GetFunction<decltype(&IMesh_SetTextureSet)>("IMesh_SetTextureSet");
-            return function && function(
-                mesh,
-                nifPath,
-                texturePaths,
-                texturePathCount,
-                modelSpaceNormals,
-                includeBodyShape);
+            return function && function(mesh, nifPath, texturePaths, texturePathCount, modelSpaceNormals, includeBodyShape);
         }
 
         inline void __stdcall IMesh_Delete(IMesh* mesh) {
@@ -184,11 +140,7 @@ namespace MeshRenderingFrameworkAPI {
             }
 
             char formId[9]{};
-            const int written = std::snprintf(
-                formId,
-                sizeof(formId),
-                "%08X",
-                static_cast<unsigned int>(faceNpc->GetLocalFormID()));
+            const int written = std::snprintf(formId, sizeof(formId), "%08X", static_cast<unsigned int>(faceNpc->GetLocalFormID()));
             if (written != 8) {
                 return {};
             }
@@ -229,8 +181,7 @@ namespace MeshRenderingFrameworkAPI {
             }
         }
 
-        inline constexpr std::size_t NpcTexturePathCount =
-            static_cast<std::size_t>(RE::BSTextureSet::Textures::kUsedTotal);
+        inline constexpr std::size_t NpcTexturePathCount = static_cast<std::size_t>(RE::BSTextureSet::Textures::kUsedTotal);
 
         struct NpcTextureOverride {
             std::string nifPath;
@@ -239,26 +190,17 @@ namespace MeshRenderingFrameworkAPI {
             bool includeBodyShape = false;
         };
 
-        inline void AppendNpcTextureOverride(
-            std::vector<NpcTextureOverride>* overrides,
-            const char* nifPath,
-            RE::BGSTextureSet* textureSet,
-            bool includeBodyShape)
-        {
+        inline void AppendNpcTextureOverride(std::vector<NpcTextureOverride>* overrides, const char* nifPath, RE::BGSTextureSet* textureSet, bool includeBodyShape) {
             if (!overrides || !nifPath || !nifPath[0] || !textureSet) {
                 return;
             }
 
             NpcTextureOverride textureOverride;
             textureOverride.nifPath = nifPath;
-            textureOverride.modelSpaceNormals = textureSet->flags.any(
-                RE::BGSTextureSet::Flag::kHasModelSpaceNormalMap);
+            textureOverride.modelSpaceNormals = textureSet->flags.any(RE::BGSTextureSet::Flag::kHasModelSpaceNormalMap);
             textureOverride.includeBodyShape = includeBodyShape;
-            for (std::size_t textureIndex = 0;
-                 textureIndex < NpcTexturePathCount;
-                 ++textureIndex) {
-                const char* texturePath = textureSet->GetTexturePath(
-                    static_cast<RE::BSTextureSet::Texture>(textureIndex));
+            for (std::size_t textureIndex = 0; textureIndex < NpcTexturePathCount; ++textureIndex) {
+                const char* texturePath = textureSet->GetTexturePath(static_cast<RE::BSTextureSet::Texture>(textureIndex));
                 if (texturePath) {
                     textureOverride.texturePaths[textureIndex] = texturePath;
                 }
@@ -266,12 +208,7 @@ namespace MeshRenderingFrameworkAPI {
             overrides->push_back(std::move(textureOverride));
         }
 
-        inline RE::BGSTextureSet* GetNpcHeadTextureSet(
-            RE::TESNPC* npc,
-            RE::TESRace* race,
-            RE::SEX sex,
-            RE::BGSHeadPart* headPart)
-        {
+        inline RE::BGSTextureSet* GetNpcHeadTextureSet(RE::TESNPC* npc, RE::TESRace* race, RE::SEX sex, RE::BGSHeadPart* headPart) {
             if (!headPart) {
                 return nullptr;
             }
@@ -298,16 +235,41 @@ namespace MeshRenderingFrameworkAPI {
             return headPart->textureSet;
         }
 
-        inline std::uint32_t AppendArmorModelPaths(
-            RE::TESObjectARMO* armor,
-            RE::TESRace* race,
-            RE::SEX sex,
-            std::vector<std::string>& paths,
-            std::uint32_t excludedSlots = 0,
-            bool excludeOnAnyOverlap = false,
-            std::vector<NpcTextureOverride>* textureOverrides = nullptr,
-            bool textureSetIncludesBodyShape = false)
-        {
+        inline RE::BGSTextureSet* GetNpcSkinTextureSet(RE::TESNPC* npc, RE::TESRace* race, RE::SEX sex, std::uint32_t slots) {
+            if (!race) {
+                return nullptr;
+            }
+
+            const auto getArmorTextureSet = [race, sex, slots](RE::TESObjectARMO* skinArmor) -> RE::BGSTextureSet* {
+                if (!skinArmor) {
+                    return nullptr;
+                }
+
+                for (RE::TESObjectARMA* armorAddon : skinArmor->armorAddons) {
+                    if (!armorAddon || !armorAddon->IsValidRace(race)) {
+                        continue;
+                    }
+
+                    const std::uint32_t addonSlots = static_cast<std::uint32_t>(*armorAddon->bipedModelData.bipedObjectSlots);
+                    if ((addonSlots & slots) != 0 && armorAddon->skinTextures[sex]) {
+                        return armorAddon->skinTextures[sex];
+                    }
+                }
+                return nullptr;
+            };
+
+            RE::BGSTextureSet* textureSet = npc ? getArmorTextureSet(npc->skin) : nullptr;
+            if (!textureSet && race) {
+                textureSet = getArmorTextureSet(race->skin);
+            }
+            if (!textureSet && npc) {
+                textureSet = getArmorTextureSet(npc->farSkin);
+            }
+            return textureSet;
+        }
+
+        inline std::uint32_t AppendArmorModelPaths(RE::TESObjectARMO* armor, RE::TESRace* race, RE::SEX sex, std::vector<std::string>& paths, std::uint32_t excludedSlots = 0, bool excludeOnAnyOverlap = false,
+                                                   std::vector<NpcTextureOverride>* textureOverrides = nullptr, bool textureSetIncludesBodyShape = false, RE::TESNPC* skinNpc = nullptr) {
             if (!armor || !race) {
                 return 0;
             }
@@ -317,22 +279,25 @@ namespace MeshRenderingFrameworkAPI {
                 if (!armorAddon || !armorAddon->IsValidRace(race)) {
                     continue;
                 }
-                const std::uint32_t addonSlots =
-                    static_cast<std::uint32_t>(*armorAddon->bipedModelData.bipedObjectSlots);
+                const std::uint32_t addonSlots = static_cast<std::uint32_t>(*armorAddon->bipedModelData.bipedObjectSlots);
                 const std::uint32_t overlappingSlots = addonSlots & excludedSlots;
-                if ((excludeOnAnyOverlap && overlappingSlots != 0) ||
-                    (!excludeOnAnyOverlap && (addonSlots & ~excludedSlots) == 0)) {
+                if ((excludeOnAnyOverlap && overlappingSlots != 0) || (!excludeOnAnyOverlap && (addonSlots & ~excludedSlots) == 0)) {
                     continue;
                 }
 
                 const char* modelPath = armorAddon->bipedModels[sex].GetModel();
                 if (modelPath && modelPath[0]) {
                     AppendUniqueNifPath(paths, modelPath);
-                    AppendNpcTextureOverride(
-                        textureOverrides,
-                        modelPath,
-                        armorAddon->skinTextures[sex],
-                        textureSetIncludesBodyShape);
+                    RE::BGSTextureSet* textureSet = armorAddon->skinTextures[sex];
+                    if (skinNpc) {
+                        // Exposed skin embedded in an outfit uses the actor's skin armor,
+                        // including its race-specific body, hand, or foot texture set.
+                        RE::BGSTextureSet* npcSkinTextureSet = GetNpcSkinTextureSet(skinNpc, race, sex, addonSlots);
+                        if (npcSkinTextureSet) {
+                            textureSet = npcSkinTextureSet;
+                        }
+                    }
+                    AppendNpcTextureOverride(textureOverrides, modelPath, textureSet, textureSetIncludesBodyShape);
                     addedSlots |= addonSlots;
                 }
             }
@@ -347,9 +312,7 @@ namespace MeshRenderingFrameworkAPI {
             std::string resourcePath = path;
             std::replace(resourcePath.begin(), resourcePath.end(), '/', '\\');
             std::string lowerPath = resourcePath;
-            std::transform(lowerPath.begin(), lowerPath.end(), lowerPath.begin(), [](unsigned char value) {
-                return static_cast<char>(std::tolower(value));
-            });
+            std::transform(lowerPath.begin(), lowerPath.end(), lowerPath.begin(), [](unsigned char value) { return static_cast<char>(std::tolower(value)); });
             if (!lowerPath.starts_with("meshes\\")) {
                 resourcePath.insert(0, "meshes\\");
             }
@@ -358,8 +321,7 @@ namespace MeshRenderingFrameworkAPI {
             return stream.good() && stream.stream && stream.stream->totalSize > 0;
         }
 
-        inline void AttachNpcFaceMorphSource(IMesh* mesh, RE::TESNPC* npc)
-        {
+        inline void AttachNpcFaceMorphSource(IMesh* mesh, RE::TESNPC* npc) {
             if (!mesh || !npc) {
                 return;
             }
@@ -370,13 +332,7 @@ namespace MeshRenderingFrameworkAPI {
             }
         }
 
-        inline IMesh* CreateWholeNpc(
-            RE::TESNPC* npc,
-            uint32_t width,
-            uint32_t height,
-            bool includeDefaultOutfit = true,
-            RE::Actor* actor = nullptr)
-        {
+        inline IMesh* CreateWholeNpc(RE::TESNPC* npc, uint32_t width, uint32_t height, bool includeDefaultOutfit = true, RE::Actor* actor = nullptr) {
             if (!npc) {
                 return nullptr;
             }
@@ -394,69 +350,29 @@ namespace MeshRenderingFrameworkAPI {
                 std::vector<RE::TESObjectARMO*> wornArmors;
                 wornArmors.reserve(8);
                 for (std::uint32_t slotIndex = 0; slotIndex < 32; ++slotIndex) {
-                    const auto slot = static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(
-                        std::uint32_t{1} << slotIndex);
+                    const auto slot = static_cast<RE::BGSBipedObjectForm::BipedObjectSlot>(std::uint32_t{1} << slotIndex);
                     RE::TESObjectARMO* armor = actor->GetWornArmor(slot);
-                    if (!armor ||
-                        std::find(wornArmors.begin(), wornArmors.end(), armor) != wornArmors.end()) {
+                    if (!armor || std::find(wornArmors.begin(), wornArmors.end(), armor) != wornArmors.end()) {
                         continue;
                     }
 
                     wornArmors.push_back(armor);
-                    outfitSlots |= AppendArmorModelPaths(
-                        armor,
-                        race,
-                        sex,
-                        componentPaths,
-                        0,
-                        false,
-                        &textureOverrides);
+                    outfitSlots |= AppendArmorModelPaths(armor, race, sex, componentPaths, 0, false, &textureOverrides, false, npc);
                 }
             } else if (includeDefaultOutfit && npc->defaultOutfit) {
                 for (RE::TESForm* outfitItem : npc->defaultOutfit->outfitItems) {
                     RE::TESObjectARMO* armor = outfitItem ? outfitItem->As<RE::TESObjectARMO>() : nullptr;
-                    outfitSlots |= AppendArmorModelPaths(
-                        armor,
-                        race,
-                        sex,
-                        componentPaths,
-                        0,
-                        false,
-                        &textureOverrides);
+                    outfitSlots |= AppendArmorModelPaths(armor, race, sex, componentPaths, 0, false, &textureOverrides, false, npc);
                 }
             }
 
             const std::size_t pathCountBeforeSkin = componentPaths.size();
-            AppendArmorModelPaths(
-                npc->skin,
-                race,
-                sex,
-                componentPaths,
-                outfitSlots,
-                true,
-                &textureOverrides,
-                true);
+            AppendArmorModelPaths(npc->skin, race, sex, componentPaths, outfitSlots, true, &textureOverrides, true);
             if (componentPaths.size() == pathCountBeforeSkin) {
-                AppendArmorModelPaths(
-                    race->skin,
-                    race,
-                    sex,
-                    componentPaths,
-                    outfitSlots,
-                    true,
-                    &textureOverrides,
-                    true);
+                AppendArmorModelPaths(race->skin, race, sex, componentPaths, outfitSlots, true, &textureOverrides, true);
             }
             if (componentPaths.size() == pathCountBeforeSkin) {
-                AppendArmorModelPaths(
-                    npc->farSkin,
-                    race,
-                    sex,
-                    componentPaths,
-                    outfitSlots,
-                    true,
-                    &textureOverrides,
-                    true);
+                AppendArmorModelPaths(npc->farSkin, race, sex, componentPaths, outfitSlots, true, &textureOverrides, true);
             }
 
             bool addedFaceGen = false;
@@ -477,11 +393,7 @@ namespace MeshRenderingFrameworkAPI {
                     if (headPart) {
                         const char* headPartPath = headPart->GetModel();
                         AppendUniqueNifPath(componentPaths, headPartPath);
-                        AppendNpcTextureOverride(
-                            &textureOverrides,
-                            headPartPath,
-                            GetNpcHeadTextureSet(npc, race, sex, headPart),
-                            false);
+                        AppendNpcTextureOverride(&textureOverrides, headPartPath, GetNpcHeadTextureSet(npc, race, sex, headPart), false);
                     }
                 }
             }
@@ -497,38 +409,21 @@ namespace MeshRenderingFrameworkAPI {
                 attachmentPaths.push_back(componentPaths[pathIndex].c_str());
             }
 
-            IMesh* mesh = IMesh_CreateByNifPathSet(
-                &basePath,
-                1,
-                attachmentPaths.data(),
-                static_cast<uint32_t>(attachmentPaths.size()),
-                width,
-                height);
+            IMesh* mesh = IMesh_CreateByNifPathSet(&basePath, 1, attachmentPaths.data(), static_cast<uint32_t>(attachmentPaths.size()), width, height);
             if (!mesh) {
                 return nullptr;
             }
 
             for (const NpcTextureOverride& textureOverride : textureOverrides) {
                 std::array<const char*, NpcTexturePathCount> texturePaths{};
-                for (std::size_t textureIndex = 0;
-                     textureIndex < texturePaths.size();
-                     ++textureIndex) {
-                    texturePaths[textureIndex] =
-                        textureOverride.texturePaths[textureIndex].c_str();
+                for (std::size_t textureIndex = 0; textureIndex < texturePaths.size(); ++textureIndex) {
+                    texturePaths[textureIndex] = textureOverride.texturePaths[textureIndex].c_str();
                 }
-                IMesh_SetTextureSet(
-                    mesh,
-                    textureOverride.nifPath.c_str(),
-                    texturePaths.data(),
-                    static_cast<std::uint32_t>(texturePaths.size()),
-                    textureOverride.modelSpaceNormals,
-                    textureOverride.includeBodyShape);
+                IMesh_SetTextureSet(mesh, textureOverride.nifPath.c_str(), texturePaths.data(), static_cast<std::uint32_t>(texturePaths.size()), textureOverride.modelSpaceNormals, textureOverride.includeBodyShape);
             }
 
             RE::TESNPC* tintNpc = npc;
-            if (tintNpc->bodyTintColor.red == 0 &&
-                tintNpc->bodyTintColor.green == 0 &&
-                tintNpc->bodyTintColor.blue == 0) {
+            if (tintNpc->bodyTintColor.red == 0 && tintNpc->bodyTintColor.green == 0 && tintNpc->bodyTintColor.blue == 0) {
                 RE::TESNPC* rootFaceNpc = npc->GetRootFaceNPC();
                 if (rootFaceNpc) {
                     tintNpc = rootFaceNpc;
@@ -552,7 +447,7 @@ namespace MeshRenderingFrameworkAPI {
             return mesh;
         }
 
-        inline IMesh* CreateFromBaseObject(RE::TESBoundObject* base, uint32_t width, uint32_t  height) {
+        inline IMesh* CreateFromBaseObject(RE::TESBoundObject* base, uint32_t width, uint32_t height) {
             if (!base) {
                 return nullptr;
             }
@@ -595,13 +490,7 @@ namespace MeshRenderingFrameworkAPI {
                 }
 
                 if (!basePaths.empty()) {
-                    if (IMesh* mesh = IMesh_CreateByNifPathSet(
-                            basePaths.data(),
-                            static_cast<uint32_t>(basePaths.size()),
-                            attachmentPaths.data(),
-                            static_cast<uint32_t>(attachmentPaths.size()),
-                            width,
-                            height)) {
+                    if (IMesh* mesh = IMesh_CreateByNifPathSet(basePaths.data(), static_cast<uint32_t>(basePaths.size()), attachmentPaths.data(), static_cast<uint32_t>(attachmentPaths.size()), width, height)) {
                         AttachNpcFaceMorphSource(mesh, npc);
                         return mesh;
                     }
@@ -671,11 +560,7 @@ namespace MeshRenderingFrameworkAPI {
             return IMesh_CreateByNiAVObjectList(objects, objectCount, width, height);
         }
 
-        inline IMesh* CreateFromActor(
-            RE::Actor* actor,
-            uint32_t width,
-            uint32_t height)
-        {
+        inline IMesh* CreateFromActor(RE::Actor* actor, uint32_t width, uint32_t height) {
             if (!actor) {
                 return nullptr;
             }
@@ -769,54 +654,32 @@ namespace MeshRenderingFrameworkAPI {
             }
             mesh->alwaysUpdate = value;
         }
-        bool SetBoneLocalPose(
-            const char* const* boneNames,
-            const std::int16_t* parentIndices,
-            const BoneTransform* transforms,
-            uint32_t transformCount)
-        {
+        bool SetBoneLocalPose(const char* const* boneNames, const std::int16_t* parentIndices, const BoneTransform* transforms, uint32_t transformCount) {
             if (!mesh) {
                 return false;
             }
-            return Internal::IMesh_SetBoneLocalPose(
-                mesh,
-                boneNames,
-                parentIndices,
-                transforms,
-                transformCount);
+            return Internal::IMesh_SetBoneLocalPose(mesh, boneNames, parentIndices, transforms, transformCount);
         }
-        bool PlayAnimation(
-            const char* animationPath,
-            bool loop = true,
-            const char* skeletonPath = "meshes\\actors\\character\\character assets\\skeleton.hkx")
-        {
+        bool PlayAnimation(const char* animationPath, bool loop = true, const char* skeletonPath = "meshes\\actors\\character\\character assets\\skeleton.hkx") {
             if (!mesh) {
                 return false;
             }
             return Internal::IMesh_PlayAnimation(mesh, animationPath, skeletonPath, loop);
         }
-        bool SetFaceMorphSource(RE::Actor* actor)
-        {
+        bool SetFaceMorphSource(RE::Actor* actor) {
             if (!mesh || !actor) {
                 return false;
             }
             return Internal::IMesh_SetFaceMorphSource(mesh, actor);
         }
-        bool SetMorph(const char* triPath, const char* morphName, float value = 1.0f)
-        {
+        bool SetMorph(const char* triPath, const char* morphName, float value = 1.0f) {
             if (!mesh || !triPath || !morphName) {
                 return false;
             }
             return Internal::IMesh_SetMorph(mesh, triPath, morphName, value);
         }
-        bool ClearFaceMorphs()
-        {
-            return mesh && Internal::IMesh_ClearFaceMorphs(mesh);
-        }
-        bool SetExpression(
-            RE::BSFaceGenKeyframeMultiple::Expression expression,
-            float value = 1.0f)
-        {
+        bool ClearFaceMorphs() { return mesh && Internal::IMesh_ClearFaceMorphs(mesh); }
+        bool SetExpression(RE::BSFaceGenKeyframeMultiple::Expression expression, float value = 1.0f) {
             if (!mesh || !base) {
                 return false;
             }
@@ -831,9 +694,7 @@ namespace MeshRenderingFrameworkAPI {
                 return cleared;
             }
 
-            const char* expressionName =
-                RE::BSFaceGenKeyframeMultiple::GetExpressionName(
-                    static_cast<std::uint32_t>(expression));
+            const char* expressionName = RE::BSFaceGenKeyframeMultiple::GetExpressionName(static_cast<std::uint32_t>(expression));
             if (!expressionName || !expressionName[0]) {
                 return false;
             }
@@ -851,9 +712,7 @@ namespace MeshRenderingFrameworkAPI {
                 if (!faceSource || !faceSource->headParts || faceSource->numHeadParts <= 0) {
                     continue;
                 }
-                for (std::int8_t headPartIndex = 0;
-                     headPartIndex < faceSource->numHeadParts;
-                     ++headPartIndex) {
+                for (std::int8_t headPartIndex = 0; headPartIndex < faceSource->numHeadParts; ++headPartIndex) {
                     if (faceSource->headParts[headPartIndex]) {
                         pending.push_back(faceSource->headParts[headPartIndex]);
                     }
@@ -864,15 +723,12 @@ namespace MeshRenderingFrameworkAPI {
             while (!pending.empty()) {
                 RE::BGSHeadPart* headPart = pending.back();
                 pending.pop_back();
-                if (!headPart ||
-                    std::find(processed.begin(), processed.end(), headPart) != processed.end()) {
+                if (!headPart || std::find(processed.begin(), processed.end(), headPart) != processed.end()) {
                     continue;
                 }
                 processed.push_back(headPart);
 
-                const char* triPath = headPart
-                    ->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph]
-                    .GetModel();
+                const char* triPath = headPart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();
                 if (triPath && triPath[0]) {
                     applied = SetMorph(triPath, expressionName, value) || applied;
                 }
@@ -923,29 +779,14 @@ namespace MeshRenderingFrameworkAPI {
         }
 
     protected:
-        Mesh(Internal::IMesh* createdMesh, RE::TESBoundObject* sourceBase)
-            : mesh(createdMesh), base(sourceBase) {}
+        Mesh(Internal::IMesh* createdMesh, RE::TESBoundObject* sourceBase) : mesh(createdMesh), base(sourceBase) {}
     };
 
     class WholeNpcMesh : public Mesh {
     public:
-        WholeNpcMesh(
-            RE::TESNPC* npc,
-            uint32_t width,
-            uint32_t height,
-            bool includeDefaultOutfit = true)
-            : Mesh(Internal::CreateWholeNpc(npc, width, height, includeDefaultOutfit), npc) {}
+        WholeNpcMesh(RE::TESNPC* npc, uint32_t width, uint32_t height, bool includeDefaultOutfit = true) : Mesh(Internal::CreateWholeNpc(npc, width, height, includeDefaultOutfit), npc) {}
 
-        WholeNpcMesh(
-            RE::FormID id,
-            uint32_t width,
-            uint32_t height,
-            bool includeDefaultOutfit = true)
-            : WholeNpcMesh(
-                RE::TESForm::LookupByID<RE::TESNPC>(id),
-                width,
-                height,
-                includeDefaultOutfit) {}
+        WholeNpcMesh(RE::FormID id, uint32_t width, uint32_t height, bool includeDefaultOutfit = true) : WholeNpcMesh(RE::TESForm::LookupByID<RE::TESNPC>(id), width, height, includeDefaultOutfit) {}
     };
 
 #ifdef ENABLE_MENU_FRAMEWORK
@@ -956,12 +797,7 @@ namespace MeshRenderingFrameworkAPI {
         uint32_t renderHeight;
 
     protected:
-        OrbitMesh(
-            Internal::IMesh* createdMesh,
-            RE::TESBoundObject* sourceBase,
-            uint32_t width,
-            uint32_t height)
-            : Mesh(createdMesh, sourceBase), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+        OrbitMesh(Internal::IMesh* createdMesh, RE::TESBoundObject* sourceBase, uint32_t width, uint32_t height) : Mesh(createdMesh, sourceBase), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
     public:
         void SetOrbitOrientation(RE::NiMatrix3 orientation) {
@@ -973,29 +809,20 @@ namespace MeshRenderingFrameworkAPI {
             orientationChanged = true;
         }
 
-        OrbitMesh(RE::TESBoundObject* base, uint32_t width, uint32_t height)
-            : Mesh(base, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+        OrbitMesh(RE::TESBoundObject* base, uint32_t width, uint32_t height) : Mesh(base, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
-        OrbitMesh(RE::FormID id, uint32_t width, uint32_t height)
-            : Mesh(id, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+        OrbitMesh(RE::FormID id, uint32_t width, uint32_t height) : Mesh(id, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
-        OrbitMesh(const char* path, uint32_t width, uint32_t height)
-            : Mesh(path, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+        OrbitMesh(const char* path, uint32_t width, uint32_t height) : Mesh(path, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
-        OrbitMesh(RE::NiAVObject* const* objects, uint32_t objectCount, uint32_t width, uint32_t height)
-            : Mesh(objects, objectCount, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+        OrbitMesh(RE::NiAVObject* const* objects, uint32_t objectCount, uint32_t width, uint32_t height) : Mesh(objects, objectCount, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
-        OrbitMesh(const std::vector<RE::NiAVObject*>& objects, uint32_t width, uint32_t height)
-            : Mesh(objects, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+        OrbitMesh(const std::vector<RE::NiAVObject*>& objects, uint32_t width, uint32_t height) : Mesh(objects, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
-        OrbitMesh(RE::Actor* actor, uint32_t width, uint32_t height)
-            : Mesh(actor, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
+        OrbitMesh(RE::Actor* actor, uint32_t width, uint32_t height) : Mesh(actor, width, height), renderWidth(width), renderHeight(height) { ScaleUp(0.8f); }
 
         void Render(const char* name) {
-            const ImGuiMCP::ImVec2 imageSize{
-                static_cast<float>(renderWidth),
-                static_cast<float>(renderHeight)
-            };
+            const ImGuiMCP::ImVec2 imageSize{static_cast<float>(renderWidth), static_cast<float>(renderHeight)};
 
             ImGuiMCP::InvisibleButton(name, imageSize);
             const auto imageMin = ImGuiMCP::GetItemRectMin();
@@ -1004,14 +831,7 @@ namespace MeshRenderingFrameworkAPI {
             ID3D11ShaderResourceView* resourceView = GetResourceView();
 
             if (resourceView) {
-                ImGuiMCP::ImDrawListManager::AddImage(
-                    drawList,
-                    (ImGuiMCP::ImTextureID)resourceView,
-                    imageMin,
-                    imageMax,
-                    {0, 0},
-                    {1, 1},
-                    IM_COL32_WHITE);
+                ImGuiMCP::ImDrawListManager::AddImage(drawList, (ImGuiMCP::ImTextureID)resourceView, imageMin, imageMax, {0, 0}, {1, 1}, IM_COL32_WHITE);
 
                 if (ImGuiMCP::IsItemActive() && ImGuiMCP::IsMouseDown(ImGuiMCP::ImGuiMouseButton_Left)) {
                     const auto delta = ImGuiMCP::GetIO()->MouseDelta;
@@ -1038,42 +858,18 @@ namespace MeshRenderingFrameworkAPI {
                     orientationChanged = false;
                 }
             } else {
-                ImGuiMCP::ImDrawListManager::AddRectFilled(
-                    drawList, imageMin, imageMax, IM_COL32(32, 32, 32, 255), 0.0f, 0);
-                ImGuiMCP::ImDrawListManager::AddRect(
-                    drawList, imageMin, imageMax, IM_COL32(96, 96, 96, 255), 0.0f, 0, 1.0f);
-                ImGuiMCP::ImDrawListManager::AddText(
-                    drawList,
-                    {imageMin.x + 8.0f, imageMin.y + 8.0f},
-                    IM_COL32(192, 192, 192, 255),
-                    "Mesh unavailable");
+                ImGuiMCP::ImDrawListManager::AddRectFilled(drawList, imageMin, imageMax, IM_COL32(32, 32, 32, 255), 0.0f, 0);
+                ImGuiMCP::ImDrawListManager::AddRect(drawList, imageMin, imageMax, IM_COL32(96, 96, 96, 255), 0.0f, 0, 1.0f);
+                ImGuiMCP::ImDrawListManager::AddText(drawList, {imageMin.x + 8.0f, imageMin.y + 8.0f}, IM_COL32(192, 192, 192, 255), "Mesh unavailable");
             }
         }
     };
 
     class WholeNpcOrbitMesh : public OrbitMesh {
     public:
-        WholeNpcOrbitMesh(
-            RE::TESNPC* npc,
-            uint32_t width,
-            uint32_t height,
-            bool includeDefaultOutfit = true)
-            : OrbitMesh(
-                Internal::CreateWholeNpc(npc, width, height, includeDefaultOutfit),
-                npc,
-                width,
-                height) {}
+        WholeNpcOrbitMesh(RE::TESNPC* npc, uint32_t width, uint32_t height, bool includeDefaultOutfit = true) : OrbitMesh(Internal::CreateWholeNpc(npc, width, height, includeDefaultOutfit), npc, width, height) {}
 
-        WholeNpcOrbitMesh(
-            RE::FormID id,
-            uint32_t width,
-            uint32_t height,
-            bool includeDefaultOutfit = true)
-            : WholeNpcOrbitMesh(
-                RE::TESForm::LookupByID<RE::TESNPC>(id),
-                width,
-                height,
-                includeDefaultOutfit) {}
+        WholeNpcOrbitMesh(RE::FormID id, uint32_t width, uint32_t height, bool includeDefaultOutfit = true) : WholeNpcOrbitMesh(RE::TESForm::LookupByID<RE::TESNPC>(id), width, height, includeDefaultOutfit) {}
     };
 #endif
 }
