@@ -44,12 +44,15 @@ void __stdcall UI::Main::Render() {
     #define TREE 0x1306D
     #define DWE_SPIDER 0x10EC86
     #define FLAMES_SPELL 0x12FCD
-    static auto item1 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
-    static auto item2 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
-    static auto item3 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(DWE_SPIDER, 1024, 1024));
-    static auto item4 = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(FLAMES_SPELL, 1024, 1024), true);
-    item1->Render("1");
-    item2->Render("2");
-    item3->Render("3");
-    item4->Render("4");
+    #define FROSTBITE_SPELL 0x2B96B
+    #define HEALING_SPELL 0x12FCC
+    #define LYDIA 0xA2C8E
+    static auto lydiaHead = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(LYDIA, 1024, 1024));
+    static auto goldIngot = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(GOLD_INGOT, 1024, 1024));
+    static auto tree = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(TREE, 1024, 1024));
+    static auto dwarvenSpider = new MenuItem(new MeshRenderingFrameworkAPI::OrbitMesh(DWE_SPIDER, 1024, 1024));
+    lydiaHead->Render("3");
+    goldIngot->Render("4");
+    tree->Render("5");
+    dwarvenSpider->Render("6");
 }
