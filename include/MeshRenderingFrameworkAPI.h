@@ -1,5 +1,7 @@
 #pragma once
 
+#include <d3d11.h>
+
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -221,10 +223,7 @@ namespace MeshRenderingFrameworkAPI {
             if (!faceNpc) {
                 faceNpc = npc;
             }
-            if (faceNpc &&
-                faceNpc->GetRace() == race &&
-                faceNpc->headRelatedData &&
-                faceNpc->headRelatedData->faceDetails) {
+            if (faceNpc && faceNpc->GetRace() == race && faceNpc->headRelatedData && faceNpc->headRelatedData->faceDetails) {
                 return faceNpc->headRelatedData->faceDetails;
             }
 

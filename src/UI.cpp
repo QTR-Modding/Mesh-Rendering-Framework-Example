@@ -32,6 +32,13 @@ public:
     bool SetExpression(RE::BSFaceGenKeyframeMultiple::Expression expression) {
         return mesh && mesh->SetExpression(expression);
     }
+    void SetFraming(float scale, RE::NiPoint3 position) {
+        if (!mesh) {
+            return;
+        }
+        mesh->ScaleUp(scale);
+        mesh->SetPosition(position);
+    }
     void Render(const char* name) {
         if (ImGuiMCP::Button((std::string("Save##Save") + name).c_str())) {
             const auto path = std::format(".\\Data\\{}.png", name);
@@ -69,6 +76,7 @@ void __stdcall UI::Main::Render() {
         playerCharacter = new MenuItem(
             new MeshRenderingFrameworkAPI::OrbitMesh(player, 1024, 1024),
             true);
+        playerCharacter->SetFraming(3.0f, RE::NiPoint3{0.0f, -500.0f, -180.0f});
         playerAnimationLoaded = playerCharacter->PlayAnimation(
             "meshes\\actors\\character\\animations\\mt_idle_a_arms_crossedloop.hkx",
             true);
