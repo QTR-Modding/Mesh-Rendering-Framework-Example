@@ -3,7 +3,28 @@
 
 namespace UI {
     void Register();
-    namespace Main {
+    namespace PlayerCharacter {
+        void __stdcall Render();
+    }
+    namespace LydiaHead {
+        void __stdcall Render();
+    }
+    namespace LydiaAnimated {
+        void __stdcall Render();
+    }
+    namespace GoldIngot {
+        void __stdcall Render();
+    }
+    namespace Tree {
+        void __stdcall Render();
+    }
+    namespace DwarvenSpider {
+        void __stdcall Render();
+    }
+    namespace LydiaWholeNpc {
+        void __stdcall Render();
+    }
+    namespace LydiaWithoutArmour {
         void __stdcall Render();
     }
     namespace Debug {
