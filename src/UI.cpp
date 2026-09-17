@@ -20,7 +20,7 @@ void UI::Register() {
 
 
 
-#define GOLD_INGOT 0x12E49
+#define GOLD_INGOT 0x5AD9E
 #define TREE 0x1306D
 #define DWE_SPIDER 0x10EC86
 #define FLAMES_SPELL 0x12FCD
